@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import type { ForecastResponse } from 'src/types/open-meteo';
+import type { ForecastResponse } from '@/types/open-meteo';
 import { mockForecast } from './mockData';
 
 export function useWeather() {

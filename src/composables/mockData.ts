@@ -1,4 +1,4 @@
-import type { GeocodingResult, ForecastResponse } from 'src/types/open-meteo';
+import type { GeocodingResult, ForecastResponse } from '@/types/open-meteo';
 
 export const mockGeocodingResults: Record<string, GeocodingResult[]> = {
   frankfurt: [{

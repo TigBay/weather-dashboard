@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import type { GeocodingResult } from 'src/types/open-meteo';
+import type { GeocodingResult } from '@/types/open-meteo';
 import { mockGeocodingResults } from './mockData';
 
 export function useGeocoding() {
