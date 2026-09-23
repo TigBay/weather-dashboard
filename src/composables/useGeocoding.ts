@@ -1,30 +1,54 @@
 import { ref, computed } from 'vue';
+import { Notify, Dialog } from 'quasar';
 import type { GeocodingResult } from '@/types/open-meteo';
-import { mockGeocodingResults } from './mockData';
 
 export function useGeocoding() {
   const results = ref<GeocodingResult[]>([]);
   const isLoading = ref(false);
   const noResult = ref(false);
 
-  function searchLocation(name: string): void {
+  const hasResults = computed(() => results.value.length > 0);
+
+  async function searchLocation(name: string) {
+    if (!name.trim()) return;
+
     isLoading.value = true;
     noResult.value = false;
+    results.value = [];
 
-    const key = name.trim().toLowerCase();
-    const found = mockGeocodingResults[key];
+    try {
+      const response = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=5&language=en`
+      );
 
-    if (found && found.length > 0) {
-      results.value = found;
-    } else {
-      results.value = [];
-      noResult.value = true;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.results || data.results.length === 0) {
+        noResult.value = true;
+        Notify.create({
+          type: 'warning',
+          message: `No location found for "${name}".`,
+          position: 'top',
+        });
+        return;
+      }
+
+      results.value = data.results as GeocodingResult[];
+    } catch {
+      Dialog.create({
+        title: 'Error',
+        message: 'The geocoding service is currently unavailable. Please try again later.',
+        color: 'negative',
+        ok: { color: 'negative', label: 'OK' },
+      });
+    } finally {
+      isLoading.value = false;
     }
-
-    isLoading.value = false;
   }
-
-  const hasResults = computed(() => results.value.length > 0);
 
   return { results, isLoading, noResult, hasResults, searchLocation };
 }

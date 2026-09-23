@@ -44,7 +44,7 @@ const weather = useWeather();
 
 function onSearch(): void {
   if (!searchTerm.value.trim()) return;
-  geocoding.searchLocation(searchTerm.value);
+  void geocoding.searchLocation(searchTerm.value);
 }
 
 function onSelectLocation(location: GeocodingResult): void {
