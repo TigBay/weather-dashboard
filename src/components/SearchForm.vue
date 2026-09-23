@@ -29,6 +29,17 @@
         </q-item-section>
       </q-item>
     </q-list>
+
+    <q-inner-loading :showing="weather.isLoading.value" />
+
+    <div v-if="weather.forecast.value" class="q-mt-md">
+      <div v-if="selectedLocation" class="text-h6">
+        {{ selectedLocation.name }}
+      </div>
+      <div class="text-h6">
+        {{ weather.forecast.value.current?.temperature_2m }}°C
+      </div>
+    </div>
   </div>
 </template>
 
@@ -41,6 +52,7 @@ import type { GeocodingResult } from '@/types/open-meteo';
 const searchTerm = ref('');
 const geocoding = useGeocoding();
 const weather = useWeather();
+const selectedLocation = ref<GeocodingResult | null>(null);
 
 function onSearch(): void {
   if (!searchTerm.value.trim()) return;
@@ -48,8 +60,9 @@ function onSearch(): void {
 }
 
 function onSelectLocation(location: GeocodingResult): void {
-  weather.loadWeather(location.latitude, location.longitude);
+  void weather.loadWeather(location.latitude, location.longitude);
+  selectedLocation.value = location;
 }
 
-defineExpose({ weather });
+defineExpose({ weather, selectedLocation });
 </script>
