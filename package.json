@@ -1,7 +1,7 @@
 {
-  "name": "quasar-project",
+  "name": "weather-dashboard",
   "version": "0.0.1",
-  "description": "A Quasar Project",
+  "description": "A real-time weather dashboard with geocoding search, 7-day forecasts, and interactive maps",
   "productName": "WeatherDashboard",
   "author": "Tigran Baymann <tigran.baymann@gmail.com>",
   "type": "module",
