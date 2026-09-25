@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 import type { GeocodingResult } from '@/types/open-meteo';
+import { isValidGeocodingResponse } from '@/types/guards';
 import { useNotifications } from '@/composables/useNotifications';
 
 export function useGeocoding() {
@@ -28,13 +29,13 @@ export function useGeocoding() {
 
       const data = await response.json();
 
-      if (!data.results || data.results.length === 0) {
+      if (!isValidGeocodingResponse(data) || !data.results || data.results.length === 0) {
         noResult.value = true;
         warn(`No location found for "${name}".`);
         return;
       }
 
-      results.value = data.results as GeocodingResult[];
+      results.value = data.results;
     } catch {
       fatal('The geocoding service is currently unavailable. Please try again later.');
     } finally {
