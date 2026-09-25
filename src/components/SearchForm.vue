@@ -41,12 +41,19 @@
       </div>
     </div>
   </div>
+
+  <WeatherMap
+    v-if="selectedLocation"
+    :latitude="selectedLocation.latitude"
+    :longitude="selectedLocation.longitude"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useGeocoding } from '@/composables/useGeocoding';
 import { useWeather } from '@/composables/useWeather';
+import WeatherMap from '@/components/WeatherMap.vue';
 import type { GeocodingResult } from '@/types/open-meteo';
 
 const searchTerm = ref('');
