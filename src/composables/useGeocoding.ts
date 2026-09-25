@@ -1,11 +1,12 @@
 import { ref, computed } from 'vue';
-import { Notify, Dialog } from 'quasar';
 import type { GeocodingResult } from '@/types/open-meteo';
+import { useNotifications } from '@/composables/useNotifications';
 
 export function useGeocoding() {
   const results = ref<GeocodingResult[]>([]);
   const isLoading = ref(false);
   const noResult = ref(false);
+  const { warn, fatal } = useNotifications();
 
   const hasResults = computed(() => results.value.length > 0);
 
@@ -29,22 +30,13 @@ export function useGeocoding() {
 
       if (!data.results || data.results.length === 0) {
         noResult.value = true;
-        Notify.create({
-          type: 'warning',
-          message: `No location found for "${name}".`,
-          position: 'top',
-        });
+        warn(`No location found for "${name}".`);
         return;
       }
 
       results.value = data.results as GeocodingResult[];
     } catch {
-      Dialog.create({
-        title: 'Error',
-        message: 'The geocoding service is currently unavailable. Please try again later.',
-        color: 'negative',
-        ok: { color: 'negative', label: 'OK' },
-      });
+      fatal('The geocoding service is currently unavailable. Please try again later.');
     } finally {
       isLoading.value = false;
     }
