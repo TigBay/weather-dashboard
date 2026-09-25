@@ -53,6 +53,19 @@
     </div>
   </div>
 
+  <q-btn
+    v-if="weather.forecast.value"
+    label="7-day forecast"
+    flat
+    @click="showDetailDialog = true"
+  />
+
+  <ForecastDetailDialog
+    v-if="weather.forecast.value"
+    v-model="showDetailDialog"
+    :forecast="weather.forecast.value"
+  />
+
   <WeatherMap
     v-if="selectedLocation"
     :latitude="selectedLocation.latitude"
@@ -65,6 +78,7 @@ import { ref } from 'vue';
 import { useGeocoding } from '@/composables/useGeocoding';
 import { useWeather } from '@/composables/useWeather';
 import WeatherMap from '@/components/WeatherMap.vue';
+import ForecastDetailDialog from '@/components/ForecastDetailDialog.vue';
 import { useRecentSearches } from '@/composables/useRecentSearches';
 import type { GeocodingResult } from '@/types/open-meteo';
 
@@ -72,6 +86,7 @@ const searchTerm = ref('');
 const geocoding = useGeocoding();
 const weather = useWeather();
 const selectedLocation = ref<GeocodingResult | null>(null);
+const showDetailDialog = ref(false);
 
 const {recentSearches, addSearch } = useRecentSearches();
 
