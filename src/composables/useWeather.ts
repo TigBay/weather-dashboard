@@ -1,11 +1,13 @@
 import { ref } from 'vue';
-import { Dialog, Loading } from 'quasar';
+import { Loading } from 'quasar';
+import { useNotifications } from '@/composables/useNotifications';
 import type { ForecastResponse } from '@/types/open-meteo';
 import { isValidForecast } from '@/types/guards';
 
 export function useWeather() {
   const forecast = ref<ForecastResponse | null>(null);
   const isLoading = ref(false);
+  const { fatal } = useNotifications();
 
   async function loadWeather(latitude: number, longitude: number) {
     isLoading.value = true;
@@ -28,12 +30,7 @@ export function useWeather() {
 
       forecast.value = data;
     } catch {
-      Dialog.create({
-        title: 'Error',
-        message: 'Weather data is currently unavailable. Please try again later.',
-        color: 'negative',
-        ok: { color: 'negative', label: 'OK' },
-      });
+      fatal('Weather data is currently unavailable. Please try again later.');
     } finally {
       isLoading.value = false;
       Loading.hide();
