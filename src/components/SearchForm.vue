@@ -12,6 +12,17 @@
       </template>
     </q-input>
 
+    <q-select
+      v-if="recentSearches.length > 0"
+      :model-value="null"
+      :options="recentSearches"
+      option-label="name"
+      label="Recent searches"
+      filled
+      emit-value
+      @update:model-value="onSelectLocation"
+    />
+
     <div v-if="geocoding.noResult.value" class="text-warning">
       Kein Ort gefunden für "{{ searchTerm }}"
     </div>
@@ -54,12 +65,15 @@ import { ref } from 'vue';
 import { useGeocoding } from '@/composables/useGeocoding';
 import { useWeather } from '@/composables/useWeather';
 import WeatherMap from '@/components/WeatherMap.vue';
+import { useRecentSearches } from '@/composables/useRecentSearches';
 import type { GeocodingResult } from '@/types/open-meteo';
 
 const searchTerm = ref('');
 const geocoding = useGeocoding();
 const weather = useWeather();
 const selectedLocation = ref<GeocodingResult | null>(null);
+
+const {recentSearches, addSearch } = useRecentSearches();
 
 function onSearch(): void {
   if (!searchTerm.value.trim()) return;
@@ -69,6 +83,7 @@ function onSearch(): void {
 function onSelectLocation(location: GeocodingResult): void {
   void weather.loadWeather(location.latitude, location.longitude);
   selectedLocation.value = location;
+  addSearch(location);
 }
 
 defineExpose({ weather, selectedLocation });
