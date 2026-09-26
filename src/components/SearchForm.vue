@@ -38,6 +38,14 @@
           <q-item-label>{{ result.name }}</q-item-label>
           <q-item-label caption>{{ result.country }}</q-item-label>
         </q-item-section>
+        <q-item-section side>
+          <q-icon
+            :name="favorites.isFavorite(result.id) ? 'favorite' : 'favorite_border'"
+            :class="favorites.isFavorite(result.id) ? 'text-red' : 'text-grey-6'"
+            class="cursor-pointer"
+            @click.stop="toggleFavorite(result)"
+          />
+        </q-item-section>
       </q-item>
     </q-list>
 
@@ -77,6 +85,7 @@
 import { ref } from 'vue';
 import { useGeocoding } from '@/composables/useGeocoding';
 import { useWeather } from '@/composables/useWeather';
+import { useFavorites } from '@/composables/useFavorites';
 import WeatherMap from '@/components/WeatherMap.vue';
 import ForecastDetailDialog from '@/components/ForecastDetailDialog.vue';
 import { useRecentSearches } from '@/composables/useRecentSearches';
@@ -85,10 +94,11 @@ import type { GeocodingResult } from '@/types/open-meteo';
 const searchTerm = ref('');
 const geocoding = useGeocoding();
 const weather = useWeather();
+const favorites = useFavorites();
 const selectedLocation = ref<GeocodingResult | null>(null);
 const showDetailDialog = ref(false);
 
-const {recentSearches, addSearch } = useRecentSearches();
+const { recentSearches, addSearch } = useRecentSearches();
 
 function onSearch(): void {
   if (!searchTerm.value.trim()) return;
@@ -99,6 +109,14 @@ function onSelectLocation(location: GeocodingResult): void {
   void weather.loadWeather(location.latitude, location.longitude);
   selectedLocation.value = location;
   addSearch(location);
+}
+
+function toggleFavorite(location: GeocodingResult): void {
+  if (favorites.isFavorite(location.id)) {
+    favorites.removeFavorite(location.id);
+  } else {
+    favorites.addFavorite(location);
+  }
 }
 
 defineExpose({ weather, selectedLocation });
