@@ -43,6 +43,6 @@ const favoritesList = computed(() => favorites.value);
 
 function selectFavorite(fav: GeocodingResult) {
   addFavorite(fav);
-  router.push('/');
+  void router.push('/');
 }
 </script>
