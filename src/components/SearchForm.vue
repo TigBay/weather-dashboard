@@ -1,12 +1,6 @@
 <template>
   <div class="search-form q-gutter-md">
-    <q-input
-      v-model="searchTerm"
-      label="Ort suchen"
-      filled
-      clearable
-      @keyup.enter="onSearch"
-    >
+    <q-input v-model="searchTerm" label="Ort suchen" filled clearable @keyup.enter="onSearch">
       <template #append>
         <q-icon name="search" class="cursor-pointer" @click="onSearch" />
       </template>
@@ -39,10 +33,13 @@
           <q-item-label caption>{{ result.country }}</q-item-label>
         </q-item-section>
         <q-item-section side>
-          <q-icon
-            :name="favorites.isFavorite(result.id) ? 'favorite' : 'favorite_border'"
-            :class="favorites.isFavorite(result.id) ? 'text-red' : 'text-grey-6'"
-            class="cursor-pointer"
+          <q-btn
+            flat
+            dense
+            round
+            :icon="favorites.isFavorite(result.id) ? 'favorite' : 'favorite_border'"
+            :color="favorites.isFavorite(result.id) ? 'red' : 'grey-6'"
+            :aria-label="favoriteLabel(result)"
             @click.stop="toggleFavorite(result)"
           />
         </q-item-section>
@@ -52,12 +49,20 @@
     <q-inner-loading :showing="weather.isLoading.value" />
 
     <div v-if="weather.forecast.value" class="q-mt-md">
-      <div v-if="selectedLocation" class="text-h6">
-        {{ selectedLocation.name }}
+      <div v-if="selectedLocation" class="row items-center no-wrap">
+        <div class="text-h6">{{ selectedLocation.name }}</div>
+        <q-btn
+          flat
+          dense
+          round
+          class="q-ml-sm"
+          :icon="favorites.isFavorite(selectedLocation.id) ? 'favorite' : 'favorite_border'"
+          :color="favorites.isFavorite(selectedLocation.id) ? 'red' : 'grey-6'"
+          :aria-label="favoriteLabel(selectedLocation)"
+          @click="toggleFavorite(selectedLocation)"
+        />
       </div>
-      <div class="text-h6">
-        {{ weather.forecast.value.current?.temperature_2m }}°C
-      </div>
+      <div class="text-h6">{{ weather.forecast.value.current?.temperature_2m }}°C</div>
     </div>
   </div>
 
@@ -82,7 +87,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useGeocoding } from '@/composables/useGeocoding';
 import { useWeather } from '@/composables/useWeather';
 import { useFavorites } from '@/composables/useFavorites';
@@ -91,6 +97,7 @@ import ForecastDetailDialog from '@/components/ForecastDetailDialog.vue';
 import { useRecentSearches } from '@/composables/useRecentSearches';
 import type { GeocodingResult } from '@/types/open-meteo';
 
+const route = useRoute();
 const searchTerm = ref('');
 const geocoding = useGeocoding();
 const weather = useWeather();
@@ -111,6 +118,12 @@ function onSelectLocation(location: GeocodingResult): void {
   addSearch(location);
 }
 
+function favoriteLabel(location: GeocodingResult): string {
+  return favorites.isFavorite(location.id)
+    ? `Remove ${location.name} from favorites`
+    : `Add ${location.name} to favorites`;
+}
+
 function toggleFavorite(location: GeocodingResult): void {
   if (favorites.isFavorite(location.id)) {
     favorites.removeFavorite(location.id);
@@ -118,6 +131,18 @@ function toggleFavorite(location: GeocodingResult): void {
     favorites.addFavorite(location);
   }
 }
+
+// Supports ?location=<id> so a favorite (or a shared link) loads straight away.
+function loadLocationFromQuery(): void {
+  const raw = route.query.location;
+  if (typeof raw !== 'string') return;
+
+  const match = favorites.findFavorite(Number(raw));
+  if (match) onSelectLocation(match);
+}
+
+onMounted(loadLocationFromQuery);
+watch(() => route.query.location, loadLocationFromQuery);
 
 defineExpose({ weather, selectedLocation });
 </script>

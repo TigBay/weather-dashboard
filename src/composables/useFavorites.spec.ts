@@ -1,10 +1,32 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { useFavorites } from './useFavorites';
+import type { GeocodingResult } from '@/types/open-meteo';
+
+const frankfurt: GeocodingResult = {
+  id: 1,
+  name: 'Frankfurt',
+  latitude: 50.1109,
+  longitude: 8.6821,
+  country: 'Germany',
+  country_code: 'DE',
+  timezone: 'Europe/Berlin',
+};
+
+const berlin: GeocodingResult = {
+  id: 2,
+  name: 'Berlin',
+  latitude: 52.52,
+  longitude: 13.405,
+  country: 'Germany',
+  country_code: 'DE',
+  timezone: 'Europe/Berlin',
+};
 
 describe('useFavorites', () => {
+  // State lives at module level, so it has to be reset between tests.
   beforeEach(() => {
     localStorage.clear();
-    vi.clearAllMocks();
+    useFavorites().reloadFavorites();
   });
 
   afterEach(() => {
@@ -18,103 +40,87 @@ describe('useFavorites', () => {
 
   it('adds a favorite and persists to localStorage', () => {
     const { favorites, addFavorite } = useFavorites();
-    const location = {
-      id: 1,
-      name: 'Frankfurt',
-      latitude: 50.1109,
-      longitude: 8.6821,
-      country: 'Germany',
-      country_code: 'DE',
-      timezone: 'Europe/Berlin',
-    };
 
-    addFavorite(location);
+    addFavorite(frankfurt);
 
     expect(favorites.value).toHaveLength(1);
-    expect(favorites.value[0]).toEqual(location);
-    expect(localStorage.getItem('weather_favorites')).toBe(
-      JSON.stringify([location])
-    );
+    expect(favorites.value[0]).toEqual(frankfurt);
+    expect(localStorage.getItem('weather_favorites')).toBe(JSON.stringify([frankfurt]));
   });
 
   it('does not add duplicate favorites', () => {
     const { favorites, addFavorite } = useFavorites();
-    const location = {
-      id: 1,
-      name: 'Frankfurt',
-      latitude: 50.1109,
-      longitude: 8.6821,
-      country: 'Germany',
-      country_code: 'DE',
-      timezone: 'Europe/Berlin',
-    };
 
-    addFavorite(location);
-    addFavorite(location);
+    addFavorite(frankfurt);
+    addFavorite(frankfurt);
 
     expect(favorites.value).toHaveLength(1);
   });
 
   it('removes a favorite and updates localStorage', () => {
     const { favorites, addFavorite, removeFavorite } = useFavorites();
-    const location = {
-      id: 1,
-      name: 'Frankfurt',
-      latitude: 50.1109,
-      longitude: 8.6821,
-      country: 'Germany',
-      country_code: 'DE',
-      timezone: 'Europe/Berlin',
-    };
 
-    addFavorite(location);
+    addFavorite(frankfurt);
     expect(favorites.value).toHaveLength(1);
 
-    removeFavorite(1);
+    removeFavorite(frankfurt.id);
     expect(favorites.value).toHaveLength(0);
     expect(localStorage.getItem('weather_favorites')).toBe(JSON.stringify([]));
   });
 
+  it('ignores removal of an unknown id', () => {
+    const { favorites, addFavorite, removeFavorite } = useFavorites();
+
+    addFavorite(frankfurt);
+    removeFavorite(999);
+
+    expect(favorites.value).toHaveLength(1);
+  });
+
   it('checks if location is favorite', () => {
     const { addFavorite, isFavorite } = useFavorites();
-    const location = {
-      id: 1,
-      name: 'Frankfurt',
-      latitude: 50.1109,
-      longitude: 8.6821,
-      country: 'Germany',
-      country_code: 'DE',
-      timezone: 'Europe/Berlin',
-    };
 
-    expect(isFavorite(1)).toBe(false);
+    expect(isFavorite(frankfurt.id)).toBe(false);
 
-    addFavorite(location);
-    expect(isFavorite(1)).toBe(true);
+    addFavorite(frankfurt);
+    expect(isFavorite(frankfurt.id)).toBe(true);
+  });
+
+  it('finds a favorite by id and returns undefined for unknown ids', () => {
+    const { addFavorite, findFavorite } = useFavorites();
+
+    addFavorite(frankfurt);
+
+    expect(findFavorite(frankfurt.id)).toEqual(frankfurt);
+    expect(findFavorite(berlin.id)).toBeUndefined();
+  });
+
+  it('shares state across separate calls', () => {
+    const first = useFavorites();
+    const second = useFavorites();
+
+    first.addFavorite(frankfurt);
+
+    expect(second.favorites.value).toHaveLength(1);
+    expect(second.isFavorite(frankfurt.id)).toBe(true);
   });
 
   it('loads persisted favorites from localStorage', () => {
-    const location = {
-      id: 1,
-      name: 'Frankfurt',
-      latitude: 50.1109,
-      longitude: 8.6821,
-      country: 'Germany',
-      country_code: 'DE',
-      timezone: 'Europe/Berlin',
-    };
+    localStorage.setItem('weather_favorites', JSON.stringify([frankfurt]));
 
-    localStorage.setItem('weather_favorites', JSON.stringify([location]));
+    const { favorites, reloadFavorites } = useFavorites();
+    reloadFavorites();
 
-    const { favorites } = useFavorites();
     expect(favorites.value).toHaveLength(1);
-    expect(favorites.value[0]).toEqual(location);
+    expect(favorites.value[0]).toEqual(frankfurt);
   });
 
   it('handles corrupt localStorage gracefully', () => {
     localStorage.setItem('weather_favorites', 'invalid json');
 
-    const { favorites } = useFavorites();
+    const { favorites, reloadFavorites } = useFavorites();
+    reloadFavorites();
+
     expect(favorites.value).toHaveLength(0);
   });
 });
