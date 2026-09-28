@@ -27,7 +27,7 @@ describe('useWeather', () => {
 
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
-      json: async () => mockResponse,
+      json: () => Promise.resolve(mockResponse),
     } as Response);
 
     const { forecast, loadWeather } = useWeather();
@@ -49,7 +49,7 @@ describe('useWeather', () => {
 
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
-      json: async () => incompleteResponse,
+      json: () => Promise.resolve(incompleteResponse),
     } as Response);
 
     const { forecast, loadWeather } = useWeather();

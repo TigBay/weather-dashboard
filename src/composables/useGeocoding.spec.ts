@@ -27,7 +27,7 @@ describe('useGeocoding', () => {
 
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
-      json: async () => mockResponse,
+      json: () => Promise.resolve(mockResponse),
     } as Response);
 
     const { results, noResult, searchLocation } = useGeocoding();
@@ -35,14 +35,14 @@ describe('useGeocoding', () => {
     await searchLocation('Frankfurt');
 
     expect(results.value).toHaveLength(1);
-    expect(results.value[0].name).toBe('Frankfurt');
+    expect(results.value[0]!.name).toBe('Frankfurt');
     expect(noResult.value).toBe(false);
   });
 
   it('sets noResult to true when no location is found', async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ results: [] }),
+      json: () => Promise.resolve({ results: [] }),
     } as Response);
 
     const { results, noResult, searchLocation } = useGeocoding();
