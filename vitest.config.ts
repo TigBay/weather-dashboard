@@ -12,10 +12,14 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // Without @quasar/vite-plugin, Vitest resolves Quasar's SSR build, which
+      // refuses to install outside an SSR context.
+      quasar: 'quasar/dist/quasar.client.js',
     },
   },
   test: {
     environment: 'jsdom',
     globals: true,
+    setupFiles: ['./src/test/setup.ts'],
   },
 });

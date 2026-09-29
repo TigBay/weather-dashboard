@@ -13,7 +13,7 @@ A real-time weather application built with **Vue 3**, **TypeScript**, **Quasar**
 - ⭐ **Favorites** – Save and manage favorite locations with persistent localStorage storage
 - 📱 **Responsive Design** – Built with Quasar for mobile and desktop compatibility
 - ✨ **Type-Safe** – 100% TypeScript with runtime type guards, zero `any` casts
-- ✅ **Well-Tested** – Vitest unit tests with component and composable coverage
+- ✅ **Well-Tested** – Unit tests for every composable plus component tests with @vue/test-utils
 
 ## Tech Stack
 
@@ -73,6 +73,7 @@ src/
 ├── layouts/            # Layout wrapper (MainLayout)
 ├── router/             # Vue Router configuration
 ├── types/              # TypeScript types and type guards
+├── test/               # Vitest setup (registers Quasar components)
 └── css/                # Global styles
 ```
 
