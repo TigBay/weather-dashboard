@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A real-time weather dashboard with geocoding search, 7-day forecasts, and interactive maps",
   "productName": "WeatherDashboard",
-  "author": "Tigran Baymann <tigran.baymann@gmail.com>",
+  "author": "Tigran Baymann (https://github.com/TigBay)",
   "type": "module",
   "private": true,
   "scripts": {
