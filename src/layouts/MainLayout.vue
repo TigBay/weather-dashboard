@@ -9,11 +9,19 @@
 
     <q-page-container>
       <q-page class="q-pa-md">
-        <router-view />
+        <div class="page-container">
+          <router-view />
+        </div>
       </q-page>
     </q-page-container>
   </q-layout>
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
+
+<style scoped>
+.page-container {
+  max-width: 860px;
+  margin: 0 auto;
+}
+</style>

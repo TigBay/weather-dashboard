@@ -2,7 +2,9 @@
 
 A real-time weather application built with **Vue 3**, **TypeScript**, **Quasar**, and **Vitest**. Search for locations worldwide, view live weather data, 7-day forecasts, interactive maps, and save your favorite locations.
 
-[![CI](https://github.com/TigBay/weather_dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/TigBay/weather_dashboard/actions/workflows/ci.yml)
+[![CI](https://github.com/TigBay/weather-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/TigBay/weather-dashboard/actions/workflows/ci.yml)
+
+![Weather Dashboard](docs/screenshot.png)
 
 ## Features
 

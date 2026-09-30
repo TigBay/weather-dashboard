@@ -5,15 +5,25 @@ export function isValidForecast(data: unknown): data is ForecastResponse {
 
   const obj = data as Record<string, unknown>;
 
-  const hasCoordinates =
-    typeof obj.latitude === 'number' && typeof obj.longitude === 'number';
+  const hasCoordinates = typeof obj.latitude === 'number' && typeof obj.longitude === 'number';
 
+  const current = obj.current as Record<string, unknown> | undefined;
   const hasCurrent =
-    typeof obj.current === 'object' &&
-    obj.current !== null &&
-    typeof (obj.current as Record<string, unknown>).temperature_2m === 'number';
+    typeof current === 'object' &&
+    current !== null &&
+    typeof current.temperature_2m === 'number' &&
+    typeof current.weather_code === 'number' &&
+    typeof current.wind_speed_10m === 'number';
 
-  return hasCoordinates && hasCurrent;
+  const daily = obj.daily as Record<string, unknown> | undefined;
+  const hasDaily =
+    typeof daily === 'object' &&
+    daily !== null &&
+    Array.isArray(daily.time) &&
+    Array.isArray(daily.temperature_2m_max) &&
+    Array.isArray(daily.temperature_2m_min);
+
+  return hasCoordinates && hasCurrent && hasDaily;
 }
 
 export function isValidGeocodingResponse(data: unknown): data is GeocodingResponse {
